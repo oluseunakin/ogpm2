@@ -1,0 +1,17 @@
+[debug] [2021-05-30T05:30:12.813Z] ----------------------------------------------------------------------
+[debug] [2021-05-30T05:30:12.817Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\Lenovo\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js emulators:start
+[debug] [2021-05-30T05:30:12.818Z] CLI Version:   9.12.0
+[debug] [2021-05-30T05:30:12.818Z] Platform:      win32
+[debug] [2021-05-30T05:30:12.818Z] Node Version:  v14.15.5
+[debug] [2021-05-30T05:30:12.820Z] Time:          Sun May 30 2021 06:30:12 GMT+0100 (West Africa Standard Time)
+[debug] [2021-05-30T05:30:12.820Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2021-05-30T05:30:12.835Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2021-05-30T05:30:12.836Z] > authorizing via signed-in user (akindoyinoluseun@gmail.com)
+[info] i  emulators: Starting emulators: hosting {"metadata":{"emulator":{"name":"hub"},"message":"Starting emulators: hosting"}}
+[debug] [2021-05-30T05:30:12.930Z] [hub] writing locator at C:\Users\Lenovo\AppData\Local\Temp\hub-ogpm-95db7.json
+[debug] [2021-05-30T05:30:12.976Z] > refreshing access token with scopes: []
+[debug] [2021-05-30T05:30:12.977Z] >>> HTTP REQUEST POST https://www.googleapis.com/oauth2/v3/token  
+ <request body omitted>
+[debug] [2021-05-30T05:30:13.386Z] <<< HTTP RESPONSE 200 {"date":"Sun, 30 May 2021 05:30:14 GMT","pragma":"no-cache","expires":"Mon, 01 Jan 1990 00:00:00 GMT","cache-control":"no-cache, no-store, max-age=0, must-revalidate","content-type":"application/json; charset=utf-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","server":"scaffolding on HTTPServer2","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","alt-svc":"h3-29=\":443\"; ma=2592000,h3-T051=\":443\"; ma=2592000,h3-Q050=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,quic=\":443\"; ma=2592000; v=\"46,43\"","accept-ranges":"none","transfer-encoding":"chunked"}
+[debug] [2021-05-30T05:30:13.483Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/ogpm-95db7/sites 
