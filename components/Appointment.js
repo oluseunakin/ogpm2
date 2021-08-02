@@ -1,40 +1,48 @@
-import { HStack, Input, Button, Text, Heading, Stack } from "@chakra-ui/react";
 import { useState } from "react";
-import { bookAppointment } from "../lib/appointments";
+import { Button, Col, Row } from "react-bootstrap";
+import { appointments} from "../lib/appointments";
+import _ from "lodash";
 
-export function Appointment({ admin, dailyAppointment, appointments }) {
-  const [name, setName] = useState("");
-  const [allAppointments, setAllAppointments] = useState([]);
-  const [rendered, setRendered] = useState(dailyAppointment);
-  return admin === "lucas" ? (
-    dailyAppointment.length != 0 ? (
-      <Stack>
-        <HStack>
-          <Heading as="h4" textAlign="center">
-            You have Appointments with
-          </Heading>
-          <Button
-            onClick={() => {
-              setAllAppointments(appointments);
-              setRendered(allAppointments)
-            }}
-          >
-            See all Appointments
-          </Button>
-        </HStack>
-        <Stack spacing="3">
-          {rendered.map((apt) => (
-            <Text>{apt.name}</Text>
-          ))}
-        </Stack>
-      </Stack>
-    ) : (
-      <Heading textAlign='center'>You have no Appointments for today</Heading>
-    )
-  ) : (
-    <HStack>
-      <Input value={name} onChange={(e) => setName(e.currentTarget.value)} />
-      <Button onClick={() => bookAppointment(name)}>Book Appointment</Button>
-    </HStack>
-  );
+function Apt({name,date}) {
+  return <Row className="mb-3">
+      <Col className="col-7">{name}</Col>
+      <Col className="col-5">{new Date(date.seconds).toDateString()}</Col>
+    </Row>
+}
+
+export function Appointment({ admin, dailyAppointment}) {
+
+  const [loading, setLoading] = useState(false)
+  const [rendered, setRendered] = useState(() => 
+    !(_.isEmpty(dailyAppointment))? 
+      <>
+        <h3>You have Appointments with</h3>
+        {dailyAppointment.map((apt,i) => <Row key={i}><Col><Apt name={apt.name} date={apt.date}/></Col></Row>)}
+      </>
+    : <h3>You have no Appointments for today</h3>
+  )
+
+  return admin === "lucas" && (
+    <Row>
+      <Col>
+        <Row className="mb-4" >
+          <Col className="d-flex justify-content-end">
+            <Button
+              variant="success"
+              active={loading}
+              onClick={async () => {
+                setLoading(true)
+                setRendered((await appointments()).map((apt,i) => (<Row key={i}>
+                  <Col><Apt name={apt.name} date={apt.date}/></Col></Row>)))
+                setLoading(false)
+              }}
+            >
+              {loading? 'Fetching...' : 'See all Appointments'}
+            </Button>
+          </Col>
+        </Row>
+        <Row className="px-5"><Col>{rendered}</Col></Row>
+      </Col>
+    </Row>
+  ) 
 }

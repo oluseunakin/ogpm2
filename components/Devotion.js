@@ -1,168 +1,237 @@
-import {
-  Stack,
-  Heading,
-  Text,
-  Input,
-  Button,
-  HStack,
-  Textarea,
-  IconButton,
-  Icon,
-  Flex,
-  Spacer,
-  Box,
-  InputGroup,
-  InputRightElement,
-  Divider,
-} from "@chakra-ui/react";
 import { useState, useRef, useEffect } from "react";
-import { devotionByDay, devotions } from "../lib/devotion";
+import { devotionByDay, createDevotion } from "../lib/devotion";
 import { formatDate } from "../lib/utils";
-
 import _ from "lodash";
-import { BsFillCaretLeftFill } from "react-icons/bs";
-import { SearchIcon } from "@chakra-ui/icons";
+import { BsSearch } from "react-icons/bs";
+import { BibleBooks, BibleVerse } from "./Bible";
+import {
+  Button,
+  Form,
+  FormControl,
+  InputGroup,
+  Row,
+  Col,
+  Card,
+  Spinner,
+  Badge,
+} from "react-bootstrap";
+import MediaComp from "./Media";
+import Bible from "../lib/Bible";
 
-export function DevotionComp({ admin, home }) {
-  const [dev, setDev] = useState({});
-  const [date, setDate] = useState(formatDate(new Date()));
+export function DevotionComp({ admin, result, setData, oldDevs, books }) {
+  const [dev, setDev] = useState({
+    title: "Title of devotion",
+    text: [],
+    topic: "Enter devotion here",
+  });
+  const [verses, setVerses] = useState([]);
   const fileInput = useRef();
-  const [devs, setDevs] = useState([]);
-  const [loading, isLoading] = useState(false);
-  const [byDay, setByDay] = useState(undefined)
-
-  useEffect(async () => {
-    setDevs(await devotions());
-  }, [dev]);
+  const [searchDate, setSearchDate] = useState();
+  const [loading, setLoading] = useState(false)
 
   return (
-    <Stack spacing="3">
-      <Flex>
-        <IconButton
-          onClick={() => {
-            home();
-          }}
-          aria-label="Go to the main page"
-          icon={<Icon as={BsFillCaretLeftFill} />}
-        />
-        <Spacer />
-        <Box>
-          <InputGroup>
-            <Input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(formatDate(e.currentTarget.valueAsDate))}
-            />
-            <InputRightElement
-              children={
-                <IconButton
-                  isLoading={loading}
+    <Row>
+      <Col>
+        <Row className="mb-5">
+          <Col className="col-md-7 col-lg-5">
+            <InputGroup>
+              <FormControl
+                type="date"
+                defaultValue={formatDate(Date.now(), "-")}
+                onChange={(e) => {
+                  setSearchDate(e.currentTarget.valueAsDate.getTime()/(1000*60*60*24));}}
+              />
+              <InputGroup.Append>
+                <Button
                   aria-label="Search for a devotion"
-                  icon={<SearchIcon />}
+                  variant="outline-dark"
                   onClick={async (e) => {
-                    isLoading(true);
-                    setByDay(await devotionByDay(date));
+                    setData(null);
+                    const devo = await devotionByDay(searchDate)
+                    setData(
+                       devo.map((dev, i) => (
+                        <Devotion
+                          key={i}
+                          gallery={dev.gallery}
+                          title={dev.title}
+                          topic={dev.topic}
+                          text={dev.text}
+                          date={dev.date}
+                        />
+                      ))
+                    );
                   }}
-                />
-              }
-            />
-          </InputGroup>
-        </Box>
-      </Flex>
-      {admin && (
-        <Stack spacing="3">
-          <Input
-            placeholder="Title for devotion"
-            onChange={(e) =>
-              !_.isEmpty(dev)
-                ? setDev({ ...dev, title: e.currentTarget.value })
-                : setDev({ title: e.currentTarget.value })
-            }
-          />
-          <Input
-            placeholder="Bible texts..."
-            onChange={(e) =>
-              !_.isEmpty(dev)
-                ? setDev({ ...dev, text: e.currentTarget.value })
-                : setDev({ text: e.currentTarget.value })
-            }
-          />
-          <Textarea
-            onChange={(e) => {
-              !_.isEmpty(dev)
-                ? setDev({ ...dev, topic: e.currentTarget.value })
-                : setDev({ topic: e.currentTarget.value });
-            }}
-            placeholder="Enter devotion here"
-          />
-          <input
-            type="file"
-            multiple
-            ref={fileInput}
-            onChange={(e) => {
-              setDev({
-                ...dev,
-                media: fileInput.current.files,
-              });
-            }}
-          />
-          <Button
-            width="max-content"
-            alignSelf="flex-end"
-            onClick={() => {
-              createDevotion(dev);
-            }}
-          >
-            Create Devotion
-          </Button>
-        </Stack>
-      )}
-      {byDay && (
-        <>
-          <Devotion
-            title={byDay.title}
-            topic={byDay.topic}
-            text={byDay.text}
-            date={byDay.date}
-            gallery={byDay.gallery}
-          />
-          <Divider />
-        </>
-      )}
-      {devs ? (
-        <Stack>
-          {devs.map((dev) => (
-            <Devotion
-              title={dev.title}
-              topic={dev.topic}
-              text={dev.text}
-              date={dev.date}
-              gallery={dev.gallery}
-            />
-          ))}
-        </Stack>
-       ) : (<Heading textAlign='center'>No devotions to show</Heading>)
-      }
-    </Stack>
+                >
+                  <BsSearch />
+                </Button>
+              </InputGroup.Append>
+            </InputGroup>
+          </Col>
+        </Row>
+        {admin && (
+          <Row className="mb-5">
+            <Col>
+              <Row className="mb-3">
+                <Col>
+                  <FormControl
+                    value={dev.title}
+                    placeholder='Title for devotion'
+                    onChange={(e) =>
+                      setDev({ ...dev, title: e.currentTarget.value })
+                    }
+                  />
+                </Col>
+              </Row>
+              <Row className="mb-3">
+                <Col>
+                  <h5>Add Bible Verses</h5>
+                  <BibleBooks books={books} admin={setVerses} />
+                </Col>
+              </Row>
+              {verses.length != 0 && (
+                <Row className="mb-3">
+                  <Col>
+                    <Card>
+                      <Card.Header>Bible Verses</Card.Header>
+                      <Card.Body>
+                        {verses.map((verse, i) => (
+                          <Badge key={i} bg="info">
+                            {verse.reference}
+                            <Button
+                              className="mx-2"
+                              onClick={() => {
+                                setVerses(
+                                  verses.filter((verse, index) => index != i)
+                                );
+                              }}
+                            >
+                              x
+                            </Button>
+                          </Badge>
+                        ))}
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                </Row>
+              )}
+              <Row className="mb-3">
+                <Col>
+                  <FormControl
+                    as="textarea"
+                    onFocus={() => setDev({...dev, date: Math.floor(new Date().getTime()/(1000*60*60*24))})}
+                    onChange={(e) => setDev({ ...dev, topic: e.currentTarget.value, text: verses })}
+                    value={dev.topic}
+                    placeholder="Sermon for devotion"
+                  />
+                </Col>
+              </Row>
+              <Row className="mb-3">
+                <Col>
+                  <Form.File
+                    multiple
+                    ref={fileInput}
+                    onChange={(e) => {
+                      setDev({ ...dev, media: fileInput.current.files });
+                    }}
+                  />
+                </Col>
+              </Row>
+              <Row className="mb-3">
+                <Col className="col-md-3">
+                  <Button
+                    disabled={loading}
+                    onClick={async () => {
+                      setData(null);
+                      setLoading(true)
+                      const newDevotion = await createDevotion(dev);
+                      newDevotion
+                        ? result("Success")
+                        : result("Can't create devotion now, try again later");
+                      setLoading(false)
+                      oldDevs.unshift(newDevotion)
+                      setData(
+                        oldDevs.map((dev, i) => (
+                          <Devotion
+                            key={i}
+                            gallery={dev.gallery}
+                            title={dev.title}
+                            topic={dev.topic}
+                            text={dev.text}
+                            date={dev.date}
+                          />
+                        ))
+                      );
+                      setDev({
+                        title: "Title of devotion",
+                        text: [],
+                        topic: "Enter devotion here",media: null
+                      })
+                      setVerses([])
+                      result("");
+                    }}
+                  >
+                    {loading? 'Creating...' : 'Create Devotion'}
+                  </Button>
+                </Col>
+              </Row>
+            </Col>
+          </Row>
+        )}
+      </Col>
+    </Row>
   );
 }
 
 export function Devotion({ text, title, topic, date, gallery }) {
+  const [verse, setVerse] = useState("");
   return (
-    <Stack>
-      <Heading textAlign="center" as="h5">
-        {title}
-      </Heading>
-      {text && typeof text === "array" && (
-        <HStack>
-          <Text>Bible Texts</Text>
-          {text.map((t) => (
-            <Button>{t}</Button>
-          ))}
-        </HStack>
-      )}
-      <Text fontSize="xs">{date}</Text>
-      <Text> {topic} </Text>
-    </Stack>
+    <Row className="mb-4">
+      <Col>
+        <Card>
+          <Card.Body>
+            <Card.Title className="d-flex justify-content-center">{title}</Card.Title>
+            {!_.isEmpty(text) && (
+              <>
+                <Row className="mb-1">
+                  <Col>
+                    <Badge>Bible Texts:</Badge>
+                    {text.map((t, i) => (
+                      <Button
+                        key={i}
+                        onClick={async () => {
+                          setVerse(
+                            <div className="d-flex justify-content-center">
+                              <Spinner animation="border" role="status">
+                                <span className="sr-only">Loading...</span>
+                              </Spinner>
+                            </div>
+                          );
+                          const data = (await new Bible().getVerse(t.bibleId, t.id))
+                            .data;
+                          setVerse(
+                            <BibleVerse verse={data} close={() => setVerse(null)} />
+                          );
+                        }}
+                        variant="link"
+                      >
+                        {t.reference}
+                      </Button>
+                    ))}
+                  </Col>
+                </Row>
+                {verse && <Row className="mb-1">
+                  <Col>{verse}</Col>
+                </Row>}
+              </>
+            )}
+            <Card.Subtitle className="text-muted">
+              {formatDate(date*(1000*60*60*24))}
+            </Card.Subtitle>
+            <Card.Text>{topic}</Card.Text>
+            {gallery && <MediaComp media={gallery} />}
+          </Card.Body>
+        </Card>
+      </Col>
+    </Row>
   );
 }

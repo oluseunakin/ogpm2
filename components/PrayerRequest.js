@@ -1,72 +1,75 @@
-import {
-  Input,
-  Heading,
-  Stack,
-  Textarea,
-  Button,
-  Text,
-  IconButton,
-  Icon,
-  useToast,
-  Spinner
-} from "@chakra-ui/react";
-import { useEffect, useState } from "react";
-import { getRequests, requestPrayer } from "../lib/prayerRequest";
-import { BsFillCaretLeftFill } from "react-icons/bs";
+import { useState } from "react";
+import { requestPrayer } from "../lib/prayerRequest";
+import { Button, Card, Col, FormControl, Row } from "react-bootstrap";
 
-export function PrayerRequest({ admin, home }) {
+export function PrayerComp({result}) {
+
   const [name, setName] = useState("");
   const [request, setRequest] = useState("");
-  let requests = [];
-  const toast = useToast()
-
-  useEffect(() => {
-    requests = getRequests();
-  }, [name, request]);
-
+  const [loading, setLoading] = useState(false);
   return (
-    <Stack spacing="4">
-      <Stack spacing="3">
-        <IconButton
-          width="max-content"
-          onClick={() => {
-            home();
-          }}
-          aria-label="Go to the main page"
-          icon={<Icon as={BsFillCaretLeftFill} />}
-        />
-        <Input
-          value={name}
-          placeholder="Your name"
-          onChange={(e) => setName(e.currentTarget.value)}
-        />
-        <Textarea
-          value={request}
-          placeholder="Type your request"
-          onChange={(e) => setRequest(e.currentTarget.value)}
-        />
-        <Button
-          onClick={() => {
-            const res = requestPrayer(name, request);
-            home()
-            toast({description: res})
-          }}
-          w="max-content"
-          alignSelf="flex-end"
-        >
-          Request
-        </Button>
-      </Stack>
-      {admin && admin === 'lucas' && (
-        <Stack spacing="4">
-          {requests.map((req) => {
-            <Stack spacing="2">
-              <Heading as="h6">{req.name}</Heading>
-              <Text>{req.request}</Text>
-            </Stack>;
-          })}
-        </Stack>
-      )}
-    </Stack>
+    <Row className="mb-5">
+      <Col>
+        <Row className="p-2">
+          <Col>
+            <FormControl
+              value={name}
+              placeholder="Your name"
+              onChange={(e) => setName(e.currentTarget.value)}
+            />
+          </Col>
+        </Row>
+        <Row className="p-2">
+          <Col>
+            <FormControl
+              as="textarea"
+              value={request}
+              placeholder="Type your request"
+              onChange={(e) => setRequest(e.currentTarget.value)}
+            />
+          </Col>
+        </Row>
+        <Row className="p-2">
+          <Col>
+            <Button
+              disabled={loading}
+              className="col-md-auto"
+              onClick={async () => {
+                setLoading(true);
+                result(await requestPrayer(name, request));
+                setLoading(false);
+                setName("");
+                setRequest("");
+                setTimeout(() => result(""), 5000);
+              }}
+            >
+              {loading ? "Sending Prayer..." : "Request"}
+            </Button>
+          </Col>
+        </Row>
+      </Col>
+    </Row>
+  );
+}
+
+export function PrayerRequest({ admin, prayers }) {
+  return (
+    <Row>
+      <Col>
+        {admin === "lucas" &&
+          prayers.map((req, i) => (
+            <Row key={i} className="mb-4">
+              <Col className="justify-content-center">
+                <Card>
+                  <Card.Body>
+                    <Card.Title>{req.name}</Card.Title>
+                    <Card.Text>{req.request}</Card.Text>
+                  </Card.Body>
+                </Card>
+              </Col>
+            </Row>
+          ))}
+      </Col>
+    </Row>
   );
 }

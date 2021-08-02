@@ -1,141 +1,118 @@
-import {
-  Stack,
-  Heading,
-  Text,
-  Input,
-  Button,
-  HStack,
-  Textarea,
-  IconButton,
-  Icon,
-  Flex,
-  Spacer,
-  Box,
-  InputGroup,
-  InputRightElement,
-} from "@chakra-ui/react";
-import { useState, useRef, useEffect } from "react";
-import { newsByDay, allnews, createNews } from "../lib/news";
+import { useState, useRef} from "react";
+import { newsByDay, createNews } from "../lib/news";
 import { formatDate } from "../lib/utils";
-
 import _ from "lodash";
-import { BsFillCaretLeftFill } from "react-icons/bs";
-import { SearchIcon } from "@chakra-ui/icons";
+import MediaComp from './Media'
+import { BsSearch } from "react-icons/bs";
+import { Col, Form, FormControl, InputGroup, Row, Button, Card } from "react-bootstrap";
 
-export function NewsComp({ admin, home }) {
-  const [news, setNews] = useState({});
-  const [date, setDate] = useState(formatDate(new Date()));
+export function NewsComp({ admin, oldNews, setData}) {
+
+  const [news, setNews] = useState({
+    title : '', news : '' 
+  });
+  const [searchDate, setSearchDate] = useState()
   const fileInput = useRef();
-  const [allNews, setAllNews] = useState([]);
-  const [loading, isLoading] = useState(false);
-
-  useEffect(async () => {
-    setAllNews(await allnews());
-  }, [news]);
+  const [loading, setLoading] = useState(false)
 
   return (
-    <Stack spacing="3">
-      <Flex>
-        <IconButton
-          onClick={() => {
-            home();
-          }}
-          aria-label="Go to the main page"
-          icon={<Icon as={BsFillCaretLeftFill} />}
-        />
-        <Spacer />
-        <Box>
-          <InputGroup>
-            <Input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(formatDate(e.currentTarget.valueAsDate))}
-            />
-            <InputRightElement
-              children={
-                <IconButton
-                  isLoading = {loading}
+    <Row>
+      <Col>
+        <Row className="mb-3">
+          <Col className="col-lg-5 col-md-7">
+            <InputGroup>
+              <FormControl
+                type="date"
+                defaultValue={formatDate(Date.now(),'-')}
+                onChange={(e) => {setSearchDate(e.currentTarget.valueAsDate.getTime()/(1000*60*60*24))}}
+              />
+              <InputGroup.Append>
+                <Button
+                  variant="outline-dark"
                   aria-label="Search for a news or event"
-                  icon={<SearchIcon />}
                   onClick={async (e) => {
-                    isLoading(true)
-                    setAllNews(async () => {
-                      await newsByDay(date)
-                      isLoading(false)
-                    })
-                    
+                    setData(null);
+                    setData(await newsByDay(searchDate).map((news,i) => <News key={i} 
+                      title={news.title} news={news.news} date={news.date} gallery={news.gallery} />))
                   }}
+                >
+                  <BsSearch/>
+                </Button>
+              </InputGroup.Append>
+            </InputGroup>
+          </Col>
+        </Row>
+        {admin && (
+          <Row>
+            <Col>
+              <Row className="mb-3">
+                <Col>
+                  <FormControl
+                    placeholder="News/Events title"
+                    value={news.title}
+                    onChange={(e) => setNews({ ...news, title: e.currentTarget.value, 
+                      date : Math.floor(new Date().getTime()/(1000*60*60*24))})}
+                  />
+                </Col>
+              </Row>
+            <Row className="mb-3">
+              <Col>
+                <FormControl as="textarea"
+                  onChange={(e) => setNews({ ...news, news: e.currentTarget.value })}
+                  placeholder="News/Events in detail"
+                  value={news.news}
                 />
-              }
-            />
-          </InputGroup>
-        </Box>
-      </Flex>
-      {admin && (
-        <Stack spacing="3">
-          <Input
-            placeholder="News/Events title"
-            onChange={(e) =>
-              !_.isEmpty(news)
-                ? setNews({ ...news, title: e.currentTarget.value })
-                : setNews({ title: e.currentTarget.value })
-            }
-          />
-          <Textarea
-            onChange={(e) => {
-              !_.isEmpty(news)
-                ? setNews({ ...news, news: e.currentTarget.value })
-                : setNews({ news: e.currentTarget.value });
-            }}
-            placeholder="News/Events in detail"
-          />
-          <input
-            type="file"
-            multiple
-            ref={fileInput}
-            onChange={(e) => {
-              setNews({
-                ...news,
-                media: fileInput.current.files,
-              });
-            }}
-          />
-          <Button
-            width="max-content"
-            alignSelf="flex-end"
-            onClick={() => {
-              createNews(news);
-            }}
-          >
-            Create News/Events
-          </Button>
-        </Stack>
+              </Col>
+            </Row>
+            <Row className="mb-3">
+              <Col>
+                <Form.File
+                  multiple
+                  ref={fileInput}
+                  onChange={(e) => setNews({...news,media: fileInput.current.files})}
+                />
+              </Col>
+            </Row>
+            <Row className="mb-3">
+              <Col>
+                <Button className="col-sm-auto col-12" disabled={loading}
+                  onClick={async () => {
+                    setData(null)
+                    setLoading(true)
+                    const newEvent = await createNews(news)
+                    setLoading(false)
+                    oldNews.unshift(newEvent)
+                    setData(oldNews.map((news,i) => (
+                      <News key={i} title={news.title} news={news.news} 
+                       date={news.date} gallery={news.gallery}/>)
+                      ))
+                  }}
+                >
+                  {loading? 'Creating...' : 'Create News/Events'}
+                </Button>
+              </Col>
+            </Row>
+          </Col>
+        </Row>
       )}
-      {allNews && (
-        <Stack>
-          {allNews.map((news) => (
-            <News
-              title={news.title}
-              news={news.news}
-              date={news.date}
-              gallery={news.gallery}
-            />
-          ))}
-        </Stack>
-      )}
-    </Stack>
+    </Col>
+    </Row>
   );
 }
 
 export function News({ news, title, date, gallery }) {
-  
-    return (
-    <Stack>
-      <Heading textAlign="center" as="h5">
-        {title}
-      </Heading>
-      <Text fontSize="xs">{date}</Text>
-      <Text> {news} </Text>
-    </Stack>
+  return (
+    <Row className="mb-3">
+      <Col>
+        <Card>
+          <Card.Body>
+            <Card.Title className="d-flex justify-content-center">{title}</Card.Title>
+            <Card.Subtitle className='text-muted'>{formatDate(date*(1000*60*60*24))}</Card.Subtitle>
+            <Card.Text>{news}</Card.Text>
+            {gallery && <MediaComp media={gallery}/>}
+          </Card.Body>
+        </Card>
+      </Col>
+    </Row>
   );
 }
