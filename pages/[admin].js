@@ -117,7 +117,6 @@ export default function Home({admin, dailyAppointment, dailyNews }) {
                 onClick={async () => {
                   setData(null);
                   const oldNews = await allnews();
-                  console.log(oldNews)
                   setMain(<NewsComp oldNews={oldNews} setData={setData} admin={admin} />);
                   setData(
                     oldNews.map((n, i) => (
