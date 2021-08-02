@@ -53,7 +53,7 @@ export default function Home({ daily }) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Container fluid="lg">
-        <Navbar expand="md" className="mb-5" sticky='top' collapseOnSelect>
+        <Navbar expand="md" className="mb-5" fixed='top' collapseOnSelect>
           <Navbar.Brand
             onClick={(e) => {
               e.preventDefault();
