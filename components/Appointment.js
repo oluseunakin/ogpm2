@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { Button, Col, Row } from "react-bootstrap";
+import { Button, Card, Col, Row } from "react-bootstrap";
 import { appointments} from "../lib/appointments";
 import _ from "lodash";
 
 function Apt({name,date}) {
   return <Row className="mb-3">
       <Col className="col-7">{name}</Col>
-      <Col className="col-5">{new Date(date.seconds).toDateString()}</Col>
+      <Col className="col-5">{new Date(date).toDateString()}</Col>
     </Row>
 }
 
@@ -32,8 +32,17 @@ export function Appointment({ admin, dailyAppointment}) {
               active={loading}
               onClick={async () => {
                 setLoading(true)
-                setRendered((await appointments()).map((apt,i) => (<Row key={i}>
-                  <Col><Apt name={apt.name} date={apt.date}/></Col></Row>)))
+                setRendered(
+                  <Card>
+                    <Card.Body>
+                      { await appointments().map((apt,i) => (
+                        <Row key={i}>
+                          <Col><Apt name={apt.name} date={apt.date}/></Col>
+                        </Row>))
+                      }
+                    </Card.Body>
+                  </Card>
+                )
                 setLoading(false)
               }}
             >
