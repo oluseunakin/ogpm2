@@ -2,13 +2,14 @@ import { useState } from "react";
 import { Button, Card, Col, Row } from "react-bootstrap";
 import { appointments} from "../lib/appointments";
 import _ from "lodash";
+import { formatDate } from "../lib/utils";
 
 function Apt({name,date}) {
   return <Card>
     <Card.Body>
   <Row>
       <Col className="col-7">{name}</Col>
-      <Col className="col-5">{new Date(date).toDateString()}</Col>
+      <Col className="col-5">{formatDate(new Date(date*(1000*60*60*24)))}</Col>
     </Row></Card.Body></Card>
 }
 
@@ -34,10 +35,11 @@ export function Appointment({ admin, dailyAppointment}) {
               active={loading}
               onClick={async () => {
                 setLoading(true)
+                const apts = await appointments()
                 setRendered(
                   <Card>
                     <Card.Body>
-                      { (await appointments()).map((apt,i) => (
+                      {_.isEmpty(apts)?'You have no Appointments' : apts.map((apt,i) => (
                         <Row key={i}>
                           <Col><Apt name={apt.name} date={apt.date}/></Col>
                         </Row>))
