@@ -22,23 +22,40 @@ import {
 } from "react-bootstrap";
 import { getTestimonies } from "../lib/testimony";
 import _ from "lodash";
-import { bibleTypes, daily } from "../lib/utils";
-import { BibleBooks} from "../components/Bible";
+import { bibleTypes, daily, getAbout } from "../lib/utils";
+import { BibleBooks } from "../components/Bible";
+import { About } from "../components/About";
 
 export default function Home({ daily }) {
-  
   function Daily() {
     return _.isEmpty(daily) ? (
-        <h1 style={{ textAlign: "center" }}>There is no devotion for today</h1>
-      ) : daily.map((d, i) => <Row key={i}>
+      <h1 style={{ textAlign: "center" }}>There is no devotion for today</h1>
+    ) : (
+      daily.map((d, i) => (
+        <Row key={i}>
           <Col>
-            {d.text ? <Devotion text={d.text} title={d.title} topic={d.topic} date={d.date} gallery={d.gallery} />
-            : <News news={d.news} title={d.title} date={d.date} gallery={d.gallery} />}
+            {d.text ? (
+              <Devotion
+                text={d.text}
+                title={d.title}
+                topic={d.topic}
+                date={d.date}
+                gallery={d.gallery}
+              />
+            ) : (
+              <News
+                news={d.news}
+                title={d.title}
+                date={d.date}
+                gallery={d.gallery}
+              />
+            )}
           </Col>
         </Row>
-      ) 
-  } 
-  
+      ))
+    );
+  }
+
   const [main, setMain] = useState();
   const [data, setData] = useState(<Daily />);
   const [name, setName] = useState("");
@@ -52,7 +69,7 @@ export default function Home({ daily }) {
         <title>Oracle of God Prophetic Ministry</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Container fluid="lg">
+      <Container fluid="lg" style={{backgroundColor:"transparent"}}>
         <Navbar expand="md" className="mb-5" collapseOnSelect={true}>
           <Navbar.Brand
             onClick={(e) => {
@@ -66,14 +83,43 @@ export default function Home({ daily }) {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse>
             <Nav fill style={{ width: "100%" }}>
-              <Nav.Link onClick={(e) => setMain(<PrayerComp />)}>
+              <Nav.Link
+                href="/about"
+                className="text-primary"
+                onClick={async (e) => {
+                  e.preventDefault();
+                  setData(null);
+                  const old = await getAbout();
+                  setData(<About oldAbout={old} />);
+                }}
+              >
+                About
+              </Nav.Link>
+              <Nav.Link
+                href="/requests"
+                className="text-primary"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setData(<Daily />);
+                  setMain(<PrayerComp />);
+                }}
+              >
                 Prayer Requests
               </Nav.Link>
               <Nav.Link
-                onClick={async () => {
+                href="/devotions"
+                className="text-primary"
+                onClick={async (e) => {
+                  e.preventDefault();
                   setData(null);
                   const oldDevs = await devotions();
-                  const books = (await new Bible().getBooks(Bible.types.get('The Holy Bible, American Standard Version'))).data
+                  const books = (
+                    await new Bible().getBooks(
+                      Bible.types.get(
+                        "The Holy Bible, American Standard Version"
+                      )
+                    )
+                  ).data;
                   setMain(
                     <DevotionComp
                       result={setResult}
@@ -99,7 +145,10 @@ export default function Home({ daily }) {
                 Devotions
               </Nav.Link>
               <Nav.Link
-                onClick={async () => {
+                href="/testimonies"
+                className="text-primary"
+                onClick={async (e) => {
+                  e.preventDefault();
                   setData(null);
                   const oldTests = await getTestimonies();
                   setMain(
@@ -126,7 +175,10 @@ export default function Home({ daily }) {
                 Testimonies
               </Nav.Link>
               <Nav.Link
-                onClick={async () => {
+                href="/news"
+                className="text-primary"
+                onClick={async (e) => {
+                  e.preventDefault();
                   setData(null);
                   const oldNews = await allnews();
                   setMain(<NewsComp oldNews={oldNews} setData={setData} />);
@@ -168,7 +220,7 @@ export default function Home({ daily }) {
                 />
                 <div className="d-flex justify-content-end">
                   <Button
-                    active={!bookClicked}
+                    disabled={bookClicked}
                     onClick={async () => {
                       setBookClicked(true);
                       setResult(await bookAppointment(name));
@@ -224,7 +276,7 @@ export default function Home({ daily }) {
 export async function getServerSideProps() {
   return {
     props: {
-      daily: await daily()
+      daily: await daily(),
     },
   };
 }

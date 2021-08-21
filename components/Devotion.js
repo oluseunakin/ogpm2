@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { devotionByDay, createDevotion } from "../lib/devotion";
 import { formatDate } from "../lib/utils";
 import _ from "lodash";
@@ -27,7 +27,7 @@ export function DevotionComp({ admin, result, setData, oldDevs, books }) {
   const [verses, setVerses] = useState([]);
   const fileInput = useRef();
   const [searchDate, setSearchDate] = useState();
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
 
   return (
     <Row>
@@ -39,17 +39,21 @@ export function DevotionComp({ admin, result, setData, oldDevs, books }) {
                 type="date"
                 defaultValue={formatDate(Date.now(), "-")}
                 onChange={(e) => {
-                  setSearchDate(e.currentTarget.valueAsDate.getTime()/(1000*60*60*24));}}
+                  setSearchDate(
+                    e.currentTarget.valueAsDate.getTime() /
+                      (1000 * 60 * 60 * 24)
+                  );
+                }}
               />
               <InputGroup.Append>
                 <Button
                   aria-label="Search for a devotion"
-                  variant="outline-dark"
+                  variant="primary"
                   onClick={async (e) => {
                     setData(null);
-                    const devo = await devotionByDay(searchDate)
+                    const devo = await devotionByDay(searchDate);
                     setData(
-                       devo.map((dev, i) => (
+                      devo.map((dev, i) => (
                         <Devotion
                           key={i}
                           gallery={dev.gallery}
@@ -68,114 +72,132 @@ export function DevotionComp({ admin, result, setData, oldDevs, books }) {
             </InputGroup>
           </Col>
         </Row>
-        {admin && (
-          <Row className="mb-5">
-            <Col>
-              <Row className="mb-3">
+        {admin && admin === "lucas" && (
+          <Card>
+            <Card.Header>Create Devotion</Card.Header>
+            <Card.Body>
+              <Row>
                 <Col>
-                  <FormControl
-                    value={dev.title}
-                    placeholder='Title for devotion'
-                    onChange={(e) =>
-                      setDev({ ...dev, title: e.currentTarget.value })
-                    }
-                  />
+                  <Row className="mb-3">
+                    <Col>
+                      <FormControl
+                        placeholder="Title for devotion"
+                        onChange={(e) =>
+                          setDev({ ...dev, title: e.currentTarget.value })
+                        }
+                      />
+                    </Col>
+                  </Row>
+                  <Row className="mb-3">
+                    <Col>
+                      <h5>Add Bible Verses</h5>
+                      <BibleBooks books={books} admin={setVerses} />
+                    </Col>
+                  </Row>
+                  {verses.length != 0 && (
+                    <Row className="mb-3">
+                      <Col>
+                        <Card>
+                          <Card.Header>Bible Verses</Card.Header>
+                          <Card.Body>
+                            {verses.map((verse, i) => (
+                              <Badge key={i} bg="info">
+                                {verse.reference}
+                                <Button
+                                  className="mx-2"
+                                  onClick={() => {
+                                    setVerses(
+                                      verses.filter(
+                                        (verse, index) => index != i
+                                      )
+                                    );
+                                  }}
+                                >
+                                  x
+                                </Button>
+                              </Badge>
+                            ))}
+                          </Card.Body>
+                        </Card>
+                      </Col>
+                    </Row>
+                  )}
+                  <Row className="mb-3">
+                    <Col>
+                      <FormControl
+                        as="textarea"
+                        onFocus={() =>
+                          setDev({
+                            ...dev,
+                            date: Math.floor(
+                              new Date().getTime() / (1000 * 60 * 60 * 24)
+                            ),
+                            text: verses,
+                          })
+                        }
+                        onChange={(e) =>
+                          setDev({ ...dev, topic: e.currentTarget.value })
+                        }
+                        placeholder="Sermon for devotion"
+                      />
+                    </Col>
+                  </Row>
+                  <Row className="mb-3">
+                    <Col>
+                      <Form.File
+                        multiple
+                        ref={fileInput}
+                        onChange={(e) => {
+                          setDev({ ...dev, media: fileInput.current.files });
+                        }}
+                      />
+                    </Col>
+                  </Row>
+                  <Row className="mb-3">
+                    <Col className="col-md-3">
+                      <Button
+                        disabled={loading}
+                        onClick={async () => {
+                          setData(null);
+                          setLoading(true);
+                          const newDevotion = await createDevotion(dev);
+                          newDevotion
+                            ? result("Success")
+                            : result(
+                                "Can't create devotion now, try again later"
+                              );
+                          setLoading(false);
+                          oldDevs.unshift(newDevotion);
+                          setData(
+                            oldDevs.map((dev, i) => (
+                              <Devotion
+                                key={i}
+                                gallery={dev.gallery}
+                                title={dev.title}
+                                topic={dev.topic}
+                                text={dev.text}
+                                date={dev.date}
+                              />
+                            ))
+                          );
+                          setDev({
+                            title: "Title of devotion",
+                            text: [],
+                            topic: "Enter devotion here",
+                            media: null,
+                          });
+                          setVerses([]);
+                          result("");
+                        }}
+                      >
+                        {loading ? "Creating..." : "Create Devotion"}
+                      </Button>
+                    </Col>
+                  </Row>
                 </Col>
               </Row>
-              <Row className="mb-3">
-                <Col>
-                  <h5>Add Bible Verses</h5>
-                  <BibleBooks books={books} admin={setVerses} />
-                </Col>
-              </Row>
-              {verses.length != 0 && (
-                <Row className="mb-3">
-                  <Col>
-                    <Card>
-                      <Card.Header>Bible Verses</Card.Header>
-                      <Card.Body>
-                        {verses.map((verse, i) => (
-                          <Badge key={i} bg="info">
-                            {verse.reference}
-                            <Button
-                              className="mx-2"
-                              onClick={() => {
-                                setVerses(
-                                  verses.filter((verse, index) => index != i)
-                                );
-                              }}
-                            >
-                              x
-                            </Button>
-                          </Badge>
-                        ))}
-                      </Card.Body>
-                    </Card>
-                  </Col>
-                </Row>
-              )}
-              <Row className="mb-3">
-                <Col>
-                  <FormControl
-                    as="textarea"
-                    onFocus={() => setDev({...dev, date: Math.floor(new Date().getTime()/(1000*60*60*24))})}
-                    onChange={(e) => setDev({ ...dev, topic: e.currentTarget.value, text: verses })}
-                    value={dev.topic}
-                    placeholder="Sermon for devotion"
-                  />
-                </Col>
-              </Row>
-              <Row className="mb-3">
-                <Col>
-                  <Form.File
-                    multiple
-                    ref={fileInput}
-                    onChange={(e) => {
-                      setDev({ ...dev, media: fileInput.current.files });
-                    }}
-                  />
-                </Col>
-              </Row>
-              <Row className="mb-3">
-                <Col className="col-md-3">
-                  <Button
-                    disabled={loading}
-                    onClick={async () => {
-                      setData(null);
-                      setLoading(true)
-                      const newDevotion = await createDevotion(dev);
-                      newDevotion
-                        ? result("Success")
-                        : result("Can't create devotion now, try again later");
-                      setLoading(false)
-                      oldDevs.unshift(newDevotion)
-                      setData(
-                        oldDevs.map((dev, i) => (
-                          <Devotion
-                            key={i}
-                            gallery={dev.gallery}
-                            title={dev.title}
-                            topic={dev.topic}
-                            text={dev.text}
-                            date={dev.date}
-                          />
-                        ))
-                      );
-                      setDev({
-                        title: "Title of devotion",
-                        text: [],
-                        topic: "Enter devotion here",media: null
-                      })
-                      setVerses([])
-                      result("");
-                    }}
-                  >
-                    {loading? 'Creating...' : 'Create Devotion'}
-                  </Button>
-                </Col>
-              </Row>
-            </Col>
-          </Row>
+            </Card.Body>
+          </Card>
         )}
       </Col>
     </Row>
@@ -189,13 +211,17 @@ export function Devotion({ text, title, topic, date, gallery }) {
       <Col>
         <Card>
           <Card.Body>
-            <Card.Title className="d-flex justify-content-center">{title}</Card.Title>
+            <Card.Title className="d-flex justify-content-center">
+              {title}
+            </Card.Title>
             {!_.isEmpty(text) && (
               <>
-                <Row className="mb-1">
-                  <Col>
+                <Row>
+                  <Col className="col-auto">
                     <Badge>Bible Texts:</Badge>
-                    {text.map((t, i) => (
+                  </Col>
+                  {text.map((t, i) => (
+                    <Col className="col-auto">
                       <Button
                         key={i}
                         onClick={async () => {
@@ -206,28 +232,34 @@ export function Devotion({ text, title, topic, date, gallery }) {
                               </Spinner>
                             </div>
                           );
-                          const data = (await new Bible().getVerse(t.bibleId, t.id))
-                            .data;
+                          const data = (
+                            await new Bible().getVerse(t.bibleId, t.id)
+                          ).data;
                           setVerse(
-                            <BibleVerse verse={data} close={() => setVerse(null)} />
+                            <BibleVerse
+                              verse={data}
+                              close={() => setVerse(null)}
+                            />
                           );
                         }}
                         variant="link"
                       >
                         {t.reference}
                       </Button>
-                    ))}
-                  </Col>
+                    </Col>
+                  ))}
                 </Row>
-                {verse && <Row className="mb-1">
-                  <Col>{verse}</Col>
-                </Row>}
+                {verse && (
+                  <Row className="mb-1">
+                    <Col>{verse}</Col>
+                  </Row>
+                )}
               </>
             )}
-            <Card.Subtitle className="text-muted">
-              {formatDate(date*(1000*60*60*24))}
-            </Card.Subtitle>
-            <Card.Text>{topic}</Card.Text>
+            <small className="text-muted">
+              {formatDate(date * (1000 * 60 * 60 * 24))}
+            </small>
+            <Card.Text className="mt-3">{topic}</Card.Text>
             {gallery && <MediaComp media={gallery} />}
           </Card.Body>
         </Card>

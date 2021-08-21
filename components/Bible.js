@@ -120,6 +120,7 @@ export function BibleBooks({ books, admin }) {
 
   return (
     <Card>
+      <Card.Header>Read the Bible</Card.Header>
       <Card.Body>
         <Row>
           <Col>

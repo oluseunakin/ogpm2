@@ -8,21 +8,42 @@ import { TestimonyComp, Testimony } from "../components/Testimony";
 import { Appointment } from "../components/Appointment";
 import { News } from "../components/News";
 import { dailyNews, allnews } from "../lib/news";
-import { Container, Row, Col, Toast, Spinner, Navbar, Nav, Card } from "react-bootstrap";
+import {
+  Container,
+  Row,
+  Col,
+  Toast,
+  Spinner,
+  Navbar,
+  Nav,
+  Card,
+} from "react-bootstrap";
 import { BibleBooks } from "../components/Bible";
 import { getTestimonies } from "../lib/testimony";
-import { devotions } from "../lib/devotion"
-import { bibleTypes} from "../lib/utils";
+import { devotions } from "../lib/devotion";
+import { bibleTypes, getAbout } from "../lib/utils";
 import Bible from "../lib/Bible";
 import { getRequests } from "../lib/prayerRequest";
+import { About, EditAbout} from "../components/About";
 
-export default function Home({admin, dailyAppointment, dailyNews }) {
-  
-  const [main, setMain] = useState(<Appointment admin={admin} dailyAppointment={dailyAppointment} />);
+export default function Home({ admin, dailyAppointment, dailyNews }) {
+  const [main, setMain] = useState(
+    <Appointment admin={admin} dailyAppointment={dailyAppointment} />
+  );
   const [result, setResult] = useState("");
   const [selectedType, setSelectedType] = useState();
-  const [data, setData] = useState(dailyNews.map((n,i) => <News key={i} news={n.news} title={n.title} gallery={n.gallery} date={n.date} />));
-  
+  const [data, setData] = useState(
+    dailyNews.map((n, i) => (
+      <News
+        key={i}
+        news={n.news}
+        title={n.title}
+        gallery={n.gallery}
+        date={n.date}
+      />
+    ))
+  );
+
   return (
     <>
       <Head>
@@ -33,13 +54,27 @@ export default function Home({admin, dailyAppointment, dailyNews }) {
         <title>Oracle of God Prophetic Ministry</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Container fluid="lg">
-        <Navbar expand="md" className="mb-5">
+      <Container fluid="lg" style={{backgroundColor:"transparent"}}>
+        <Navbar expand="md" className="mb-5" collapseOnSelect> 
           <Navbar.Brand
             onClick={(e) => {
               e.preventDefault();
-              setMain(<Appointment admin={admin} dailyAppointment={dailyAppointment} />);
-              setData(dailyNews.map((n) => <News news={n.news} title={n.title} gallery={n.gallery} date={n.date} />))
+              setMain(
+                <Appointment
+                  admin={admin}
+                  dailyAppointment={dailyAppointment}
+                />
+              );
+              setData(
+                dailyNews.map((n) => (
+                  <News
+                    news={n.news}
+                    title={n.title}
+                    gallery={n.gallery}
+                    date={n.date}
+                  />
+                ))
+              );
             }}
             href="/"
           >
@@ -48,19 +83,46 @@ export default function Home({admin, dailyAppointment, dailyNews }) {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse>
             <Nav fill style={{ width: "100%" }}>
-              <Nav.Link onClick={async (e) => {
+              <Nav.Link
+                href='/about'
+                className="text-primary"
+                onClick={async (e) => {
+                  e.preventDefault()
                   setData(null)
-                  const prayers = await getRequests()
-                  setMain(<PrayerComp result={setResult}/>)
-                  setData(<PrayerRequest prayers={prayers} admin={admin}/>)
-                }}>
+                  const old = await getAbout()
+                  setMain(<EditAbout result={setResult} oldAbout={old}/>)
+                  setData(<About oldAbout={old}/>)
+                }}
+              >
+                About
+              </Nav.Link>
+              <Nav.Link
+                className="text-primary"
+                href='/prayers'
+                onClick={async (e) => {
+                  e.preventDefault()
+                  setData(null);
+                  const prayers = await getRequests();
+                  setMain(<PrayerComp result={setResult} />);
+                  setData(<PrayerRequest prayers={prayers} admin={admin} />);
+                }}
+              >
                 Prayer Requests
               </Nav.Link>
               <Nav.Link
-                onClick={async () => {
+                className="text-primary"
+                href='/devotions'
+                onClick={async (e) => {
+                  e.preventDefault()
                   setData(null);
                   const oldDevs = await devotions();
-                  const books = (await new Bible().getBooks(Bible.types.get('The Holy Bible, American Standard Version'))).data
+                  const books = (
+                    await new Bible().getBooks(
+                      Bible.types.get(
+                        "The Holy Bible, American Standard Version"
+                      )
+                    )
+                  ).data;
                   setMain(
                     <DevotionComp
                       admin={admin}
@@ -87,7 +149,10 @@ export default function Home({admin, dailyAppointment, dailyNews }) {
                 Devotions
               </Nav.Link>
               <Nav.Link
-                onClick={async () => {
+                href='/testimonies'
+                className="text-primary"
+                onClick={async (e) => {
+                  e.preventDefault()
                   setData(null);
                   const oldTests = await getTestimonies();
                   setMain(
@@ -114,10 +179,19 @@ export default function Home({admin, dailyAppointment, dailyNews }) {
                 Testimonies
               </Nav.Link>
               <Nav.Link
-                onClick={async () => {
+                href='/news'
+                className="text-primary"
+                onClick={async (e) => {
+                  e.preventDefault()
                   setData(null);
                   const oldNews = await allnews();
-                  setMain(<NewsComp oldNews={oldNews} setData={setData} admin={admin} />);
+                  setMain(
+                    <NewsComp
+                      oldNews={oldNews}
+                      setData={setData}
+                      admin={admin}
+                    />
+                  );
                   setData(
                     oldNews.map((n, i) => (
                       <News
@@ -136,10 +210,10 @@ export default function Home({admin, dailyAppointment, dailyNews }) {
             </Nav>
           </Navbar.Collapse>
         </Navbar>
-          
+
         <Row>
           <Col className="justify-content-center d-flex">
-            <Toast show={result !== ""}>
+            <Toast show={result !== ""} >
               <Toast.Body>{result}</Toast.Body>
             </Toast>
           </Col>
@@ -160,7 +234,7 @@ export default function Home({admin, dailyAppointment, dailyNews }) {
                         const data = (
                           await new Bible().getBooks(e.target.value)
                         ).data;
-                        setData(<BibleBooks books={data}/>);
+                        setData(<BibleBooks books={data} />);
                       }}
                     >
                       {bibleTypes()}{" "}
@@ -181,18 +255,17 @@ export default function Home({admin, dailyAppointment, dailyNews }) {
             </Spinner>
           </div>
         )}
-
       </Container>
     </>
   );
 }
 
-export async function getServerSideProps({params}) {
+export async function getServerSideProps({ params }) {
   return {
     props: {
       dailyAppointment: await dailyAppointment(),
       dailyNews: await dailyNews(),
-      admin: params.admin
+      admin: params.admin,
     },
   };
 }
