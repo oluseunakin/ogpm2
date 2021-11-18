@@ -15,7 +15,7 @@ function Apt({ appointments }) {
                 <Row className="justify-content-center d-flex mb-1" key={i}>
                   <Col>{apt.name}</Col>
                   <Col>
-                    {formatDate(new Date(apt.date * (1000 * 60 * 60 * 24)))}
+                    {formatDate(apt.date * (1000 * 60 * 60 * 24))}
                   </Col>
                 </Row>
                 
@@ -42,7 +42,7 @@ export function Appointment({ admin, dailyAppointment }) {
   );
 
   return (
-    admin === "lucas" && (
+    admin && (
       <Row>
         <Col>
           <Row className="mb-4">

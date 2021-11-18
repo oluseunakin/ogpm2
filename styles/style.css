@@ -1,0 +1,20 @@
+body {
+    background-image: url('/logo2.jpg');
+    height: 100%;
+    color: white;
+}
+
+.card-header {
+    background-color: cornsilk;
+}
+
+.card{
+    color: black;
+    background-color: rgba(white, white, white, 0.3);
+}
+
+.btn {
+    background-color: cornsilk;
+    border: cornsilk;
+    color: black;
+}
