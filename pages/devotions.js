@@ -62,7 +62,7 @@ export default function DevotionComp({ devotions }) {
                 <InputGroup.Append>
                   <Button
                     aria-label="Search for a devotion"
-                    variant="primary"
+                    variant="secondary"
                     onClick={async (e) => {
                       setResult(<MySpinner />);
                       setData(

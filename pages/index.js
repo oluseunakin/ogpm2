@@ -17,7 +17,7 @@ export default function Home({ daily }) {
 
   function Daily() {
     return _.isEmpty(daily) ? (
-      <h1 style={{ textAlign: "center" }}>There is no devotion for today</h1>
+      <h1 style={{ textAlign: "center", color: 'white' }}>There is no devotion for today</h1>
     ) : (
       daily.map((d, i) => (
         <Row key={i}>

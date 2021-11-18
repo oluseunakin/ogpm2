@@ -18,11 +18,9 @@ function Apt({ appointments }) {
                     {formatDate(apt.date * (1000 * 60 * 60 * 24))}
                   </Col>
                 </Row>
-                
               ))}
             </Col>
-          </Row>
-        
+          </Row>  
       </Card.Body>
     </Card>
   );
@@ -46,16 +44,16 @@ export function Appointment({ admin, dailyAppointment }) {
       <Row>
         <Col>
           <Row className="mb-4">
-            <Col className="d-flex justify-content-center">
+            <Col className="justify-content-center d-flex">
               <Button
                 variant="success"
-                active={loading}
+                disabled={loading}
                 onClick={async () => {
                   setLoading(true);
                   const apts = await appointments();
                   setRendered(
                     _.isEmpty(apts) ? (
-                      <h4>"You have no Appointments"</h4>
+                      <h3>You have no Appointments</h3>
                     ) : (
                       <Apt appointments={apts} />
                     )
@@ -63,12 +61,12 @@ export function Appointment({ admin, dailyAppointment }) {
                   setLoading(false);
                 }}
               >
-                {loading ? "Fetching..." : "See all Appointments"}
+                {loading ? "Fetching your Appointments..." : "See all Appointments"}
               </Button>
             </Col>
           </Row>
-          <Row className="px-5">
-            <Col>{rendered}</Col>
+          <Row>
+            <Col className="justify-content-center d-flex">{rendered}</Col>
           </Row>
         </Col>
       </Row>

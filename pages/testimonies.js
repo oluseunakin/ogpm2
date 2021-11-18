@@ -39,7 +39,7 @@ export default function TestimonyComp({ oldTests }) {
     <>
       <Navigation admin={admin} />
       <Result text={result} />
-      <Row>
+      <Row className='mb-3'>
         <Col>
           <Row className="mb-3">
             <Col md={6} className="mb-2">
@@ -53,7 +53,7 @@ export default function TestimonyComp({ oldTests }) {
                 />
                 <InputGroup.Append>
                   <Button
-                    variant="primary"
+                    variant="secondary"
                     aria-label="Search for testimony by name"
                     onClick={async () => {
                       setResult(<MySpinner />);
@@ -74,7 +74,7 @@ export default function TestimonyComp({ oldTests }) {
                 />
                 <InputGroup.Append>
                   <Button
-                    variant="primary"
+                    variant="secondary"
                     aria-label="Search for a testimony"
                     onClick={async (e) => {
                       setResult(<MySpinner />);

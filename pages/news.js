@@ -50,7 +50,7 @@ export default function NewsComp({ oldNews }) {
                 />
                 <InputGroup.Append>
                   <Button
-                    variant="primary"
+                    variant="secondary"
                     aria-label="Search for a news or event"
                     onClick={async (e) => {
                       setData(null);

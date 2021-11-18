@@ -21,10 +21,10 @@ export default function Home({ admin, dailyAppointment, dailyNews }) {
     <>
       <Navigation admin={admin} />
       <Row className="mb-4">
-        <Col lg={4} className="mb-4">
+        <Col lg={4} className="mb-3">
           <Bibeli setData={setData} old={daily}/>
         </Col>
-        <Col lg={8}>
+        <Col lg={8} className="mb-3">
           <Appointment admin={admin} dailyAppointment={dailyAppointment} />
         </Col>
       </Row>
