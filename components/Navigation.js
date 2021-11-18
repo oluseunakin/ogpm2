@@ -15,7 +15,7 @@ export function Navigation({ admin }) {
         <Navbar.Brand href={"/" + add}>
           <h5 className={styles.home}>Oracle of God Prophetic Ministry</h5>
         </Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" className='btn-primary'/>
+        <Navbar.Toggle aria-controls="basic-navbar-nav" className={styles.menubtn}/>
         <Navbar.Collapse >
           <Nav fill style={{ width: "100%" }}>
             <Nav.Link href={"/about" + ad} className="text-warning">

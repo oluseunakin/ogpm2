@@ -7,10 +7,8 @@ export default function Result({ text }) {
         style={{
           position: "fixed",
           top: "40%",
-          left: "40%",
+          left: "30%",
           zIndex: "100",
-          backgroundColor: "black",
-          color: "aquamarine",
         }}
       >
         <Card.Body>

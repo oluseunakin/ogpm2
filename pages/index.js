@@ -48,7 +48,7 @@ export default function Home({ daily }) {
     <>
       <Navigation />
       <Row className="mb-4">
-        <Col md="8" className='justify-content-md-center d-flex'>
+        <Col md="8" className='justify-content-md-center d-flex mb-2'>
           <Row>
             <Col>
               <FormControl
