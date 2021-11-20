@@ -25,7 +25,7 @@ export default function NewsComp({ oldNews }) {
   const [searchDate, setSearchDate] = useState();
   const fileInput = useRef();
   const [loading, setLoading] = useState(false);
-  const [muchMedia, setMuchMedia] = useState(false)
+  const [muchMedia, setMuchMedia] = useState(false);
   const { admin } = useRouter().query;
 
   return (
@@ -80,6 +80,22 @@ export default function NewsComp({ oldNews }) {
                     <Row className="mb-3">
                       <Col>
                         <FormControl
+                          type="date"
+                          defaultValue={formatDate(Date.now(), "-")}
+                          onChange={(e) => {
+                            const date = e.currentTarget.valueAsDate.getTime();
+                            if (date > Date.now()) {
+                              setSearchDate(
+                                Math.floor(date / (1000 * 60 * 60 * 24))
+                              );
+                            }else e.currentTarget.value = formatDate(Date.now() , '-')
+                          }}
+                        />
+                      </Col>
+                    </Row>
+                    <Row className="mb-3">
+                      <Col>
+                        <FormControl
                           as="textarea"
                           ref={newsRef}
                           placeholder="News/Events in detail"
@@ -89,7 +105,11 @@ export default function NewsComp({ oldNews }) {
                     <Row className="mb-3">
                       <Col>
                         <Form.File multiple ref={fileInput} />
-                        {muchMedia && <span>You are trying to upload more than the max allowed</span>}
+                        {muchMedia && (
+                          <span>
+                            You are trying to upload more than the max allowed
+                          </span>
+                        )}
                       </Col>
                     </Row>
                     <Row className="mb-3">
@@ -100,22 +120,19 @@ export default function NewsComp({ oldNews }) {
                           onClick={async () => {
                             const media = checkMedia(fileInput.current.files);
                             if (typeof media === "string") {
-                              setMuchMedia(true)
-                              fileInput.current.value = ''
-                            }
-                            else {
+                              setMuchMedia(true);
+                              fileInput.current.value = "";
+                            } else {
                               setData(null);
                               setLoading(true);
                               const newEvent = await createNews({
                                 news: newsRef.current.value,
                                 title: titleRef.current.value,
-                                date: Math.floor(
-                                  Date.now() / (1000 * 60 * 60 * 24)
-                                ),
+                                date: searchDate,
                                 media: media,
                               });
                               setLoading(false);
-                              setMuchMedia(false)
+                              setMuchMedia(false);
                               newsRef.current.value = "";
                               titleRef.current.value = "";
                               fileInput.current.value = "";
