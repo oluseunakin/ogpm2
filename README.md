@@ -1,3 +1,1 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
-
-This app is built with firebase as backend server
+This is a web app built for a church to manage their activities online. They can post their pictures, videos and devotions. Congregation can book appointment, read the bible. The app is built using Next Js framework, Bootstrap and Firebase database
